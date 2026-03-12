@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Statistiche — Magic Collection{% endblock %}
+
+{% block extra_style %}
+<style>
+    .stats-hero { display:flex; gap:1.5rem; margin-bottom:2rem; flex-wrap:wrap; }
+    .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:1.4rem 2rem; flex:1; min-width:180px; }
+    .stat-value { font-family:'Cinzel',serif; font-size:2.2rem; font-weight:700; color:var(--accent); line-height:1; }
+    .stat-label { font-size:.82rem; color:var(--text-dim); margin-top:.4rem; font-family:'Cinzel',serif; letter-spacing:.06em; text-transform:uppercase; }
+
+    .sets-table { width:100%; border-collapse:collapse; }
+    .sets-table th { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:.6rem 1rem; border-bottom:1px solid var(--border2); }
+    .sets-table th.right { text-align:right; }
+    .sets-table td { padding:.65rem 1rem; border-bottom:1px solid var(--border); font-size:.92rem; vertical-align:middle; }
+    .sets-table tr:last-child td { border-bottom:none; }
+    .sets-table tr:hover td { background:var(--bg3); }
+
+    .set-code-badge { font-family:monospace; background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:.1rem .45rem; font-size:.75rem; color:var(--accent); }
+
+    /* BARRA PROGRESSO */
+    .progress-wrap { display:flex; align-items:center; gap:.7rem; }
+    .progress-bar { flex:1; height:6px; background:var(--border2); border-radius:3px; overflow:hidden; min-width:80px; }
+    .progress-fill { height:100%; border-radius:3px; background:var(--accent); transition:width .4s; }
+    .progress-fill.full { background:var(--green); }
+    .progress-pct { font-family:'Cinzel',serif; font-size:.78rem; color:var(--text-dim); min-width:38px; text-align:right; }
+
+    .rarity-mini { display:flex; gap:.3rem; }
+    .rarity-chip { font-size:.7rem; padding:.1rem .4rem; border-radius:4px; font-family:'Cinzel',serif; white-space:nowrap; }
+    .rc-mythic   { background:rgba(232,124,62,.15); color:#e87c3e; border:1px solid rgba(232,124,62,.3); }
+    .rc-rare     { background:rgba(201,168,76,.15); color:#c9a84c; border:1px solid rgba(201,168,76,.3); }
+    .rc-uncommon { background:rgba(126,200,227,.15); color:#7ec8e3; border:1px solid rgba(126,200,227,.3); }
+    .rc-common   { background:rgba(138,138,138,.12); color:#9a9a9a; border:1px solid rgba(138,138,138,.25); }
+
+    .export-bar { display:flex; justify-content:flex-end; margin-bottom:1.2rem; }
+
+    .section-title { font-family:'Cinzel',serif; font-size:1rem; color:var(--text); margin-bottom:1rem; padding-bottom:.5rem; border-bottom:1px solid var(--border); letter-spacing:.05em; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Statistiche</h1>
+<p class="subtitle">Panoramica della tua collezione</p>
+
+<!-- TOTALI -->
+{% set pct_global = ((owned_cards / total_cards * 100) | round(1)) if total_cards else 0 %}
+<div class="stats-hero">
+    <div class="stat-card">
+        <div class="stat-value">{{ owned_cards }}</div>
+        <div class="stat-label">Carte possedute</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ total_cards }}</div>
+        <div class="stat-label">Carte totali importate</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ pct_global }}%</div>
+        <div class="stat-label">Completamento globale</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ sets_list | length }}</div>
+        <div class="stat-label">Espansioni importate</div>
+    </div>
+</div>
+
+<!-- EXPORT -->
+<div class="export-bar">
+    <a href="/export/csv" class="btn btn-primary">⬇ Esporta CSV</a>
+</div>
+
+<!-- TABELLA PER SET -->
+<p class="section-title">Completamento per espansione</p>
+{% if sets_list %}
+<table class="sets-table">
+    <thead>
+        <tr>
+            <th>Espansione</th>
+            <th class="right">Possedute</th>
+            <th>Completamento</th>
+            <th>Per rarità</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for s in sets_list %}
+    {% set pct = ((s.owned / s.total * 100) | round(1)) if s.total else 0 %}
+    <tr>
+        <td>
+            <span class="set-code-badge">{{ s.set_code | upper }}</span>
+            &nbsp; {{ s.set_name }}
+        </td>
+        <td style="text-align:right; font-family:'Cinzel',serif; font-size:.88rem;">
+            <strong style="color:var(--green)">{{ s.owned }}</strong>
+            <span style="color:var(--text-dim)"> / {{ s.total }}</span>
+        </td>
+        <td style="min-width:160px;">
+            <div class="progress-wrap">
+                <div class="progress-bar">
+                    <div class="progress-fill {% if pct == 100 %}full{% endif %}"
+                         style="width:{{pct}}%"></div>
+                </div>
+                <span class="progress-pct">{{ pct }}%</span>
+            </div>
+        </td>
+        <td>
+            <div class="rarity-mini">
+                {% for r, label in [("mythic","M"),("rare","R"),("uncommon","U"),("common","C")] %}
+                {% set rd = s.by_rarity[r] %}
+                {% if rd.total > 0 %}
+                <span class="rarity-chip rc-{{ r }}" title="{{ r|capitalize }}: {{ rd.owned }}/{{ rd.total }}">
+                    {{ label }} {{ rd.owned }}/{{ rd.total }}
+                </span>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="color:var(--text-dim); font-style:italic; padding:2rem 0;">
+    Nessuna espansione importata. Vai alla pagina <a href="/" style="color:var(--accent)">Espansioni</a> per iniziare.
+</p>
+{% endif %}
+{% endblock %}

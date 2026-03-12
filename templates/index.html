@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Espansioni — Magic Collection{% endblock %}
+
+{% block extra_style %}
+<style>
+    .sets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+    .set-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; transition: border-color 0.2s, background 0.2s; }
+    .set-card:hover { border-color: var(--border2); background: var(--bg3); }
+    .set-info { flex: 1; min-width: 0; }
+    .set-name { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .set-meta { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.2rem; }
+    .set-code { font-family: monospace; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 0.1rem 0.4rem; font-size: 0.75rem; color: var(--accent); }
+    .import-status { min-width: 120px; text-align: right; }
+    .imported-label { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--green); letter-spacing: 0.05em; }
+    .page-header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem; }
+    .search-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem 1rem; color: var(--text); font-family: 'Crimson Text', serif; font-size: 1rem; width: 260px; outline: none; transition: border-color 0.2s; }
+    .search-box:focus { border-color: var(--accent); }
+    .htmx-request .btn { opacity: 0.6; pointer-events: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Espansioni</h1>
+        <p class="subtitle">Importa le carte direttamente da Scryfall</p>
+    </div>
+    <input class="search-box" type="search" placeholder="Cerca espansione…" oninput="filterSets(this.value)">
+</div>
+
+<div class="sets-grid" id="sets-grid">
+    {% for s in sets %}
+    <div class="set-card" data-name="{{ s.name | lower }}">
+        <div class="set-info">
+            <div class="set-name">{{ s.name }}</div>
+            <div class="set-meta">
+                <span class="set-code">{{ s.set_code | upper if s.set_code else s.code | upper }}</span>
+                &nbsp;·&nbsp; {{ s.released_at[:4] if s.released_at else "—" }}
+                &nbsp;·&nbsp; {{ s.card_count }} carte
+            </div>
+        </div>
+        <div class="import-status" id="status-{{ s.code }}">
+            {% if s.code in imported_sets %}
+                <span class="imported-label">✓ Importata</span>
+            {% else %}
+                <button class="btn btn-primary"
+                    hx-post="/import/{{ s.code }}"
+                    hx-target="#status-{{ s.code }}"
+                    hx-swap="innerHTML"
+                    hx-indicator="#status-{{ s.code }}">
+                    Importa
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function filterSets(query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('.set-card').forEach(card => {
+        card.style.display = card.dataset.name.includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}
