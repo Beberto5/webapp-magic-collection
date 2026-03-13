@@ -289,34 +289,7 @@
         background: var(--accent2);
     }
 
-    #card-popup-info {
-        margin-top: .8rem;
-        background: var(--bg2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: .8rem 1rem;
-        font-size: .88rem;
-    }
-
-    #card-popup-info .popup-name {
-        font-family: 'Cinzel', serif;
-        font-size: 1rem;
-        color: var(--accent);
-        margin-bottom: .3rem;
-    }
-
-    #card-popup-info .popup-meta {
-        color: var(--text-dim);
-        font-size: .8rem;
-        margin-bottom: .4rem;
-    }
-
-    #card-popup-info .popup-text {
-        color: var(--text);
-        font-style: italic;
-        line-height: 1.5;
-    }
-
+    
     .empty-state {
         text-align: center;
         padding: 4rem 2rem;
@@ -400,20 +373,13 @@
     <div id="card-popup-inner">
         <button id="card-popup-close" onclick="closePopupDirect()">✕</button>
         <img id="card-popup-img" src="" alt="">
-        <div id="card-popup-info">
-            <div class="popup-name" id="popup-name"></div>
-            <div class="popup-meta" id="popup-meta"></div>
-            <div class="popup-text" id="popup-text"></div>
-        </div>
+
     </div>
 </div>
 
 <script>
     function openPopup(imgSrc, name, meta, text) {
         document.getElementById('card-popup-img').src = imgSrc;
-        document.getElementById('popup-name').textContent = name;
-        document.getElementById('popup-meta').textContent = meta;
-        document.getElementById('popup-text').textContent = text;
         document.getElementById('card-popup').classList.add('open');
         document.body.style.overflow = 'hidden';
     }
