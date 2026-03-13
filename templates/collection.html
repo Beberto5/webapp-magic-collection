@@ -3,58 +3,326 @@
 
 {% block extra_style %}
 <style>
-    .filters { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:1.2rem 1.5rem; margin-bottom:1.5rem; display:flex; flex-wrap:wrap; gap:1rem; align-items:flex-end; }
-    .filter-group { display:flex; flex-direction:column; gap:.3rem; }
-    .filter-group label { font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:.1em; color:var(--text-dim); text-transform:uppercase; }
-    .filter-select, .filter-input { background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius); color:var(--text); padding:.42rem .8rem; font-family:'Crimson Text',serif; font-size:.95rem; outline:none; min-width:150px; transition:border-color .2s; }
-    .filter-select:focus, .filter-input:focus { border-color:var(--accent); }
+    .filters {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+    }
 
-    .results-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:.5rem; }
-    .results-count { color:var(--text-dim); font-style:italic; }
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: .3rem;
+    }
+
+    .filter-group label {
+        font-family: 'Cinzel', serif;
+        font-size: .7rem;
+        letter-spacing: .1em;
+        color: var(--text-dim);
+        text-transform: uppercase;
+    }
+
+    .filter-select,
+    .filter-input {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius);
+        color: var(--text);
+        padding: .42rem .8rem;
+        font-family: 'Crimson Text', serif;
+        font-size: .95rem;
+        outline: none;
+        min-width: 150px;
+        transition: border-color .2s;
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+        border-color: var(--accent);
+    }
+
+    .results-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .results-count {
+        color: var(--text-dim);
+        font-style: italic;
+    }
 
     /* CARD GRID */
-    .card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(178px,1fr)); gap:1.2rem; }
-    .card-item { position:relative; border-radius:10px; overflow:visible; background:var(--bg2); border:1px solid var(--border); transition:transform .2s,border-color .2s,box-shadow .2s; }
-    .card-item:hover { transform:translateY(-4px); border-color:var(--accent); box-shadow:0 8px 32px rgba(201,168,76,.2); }
-    .card-item.is-owned { border-color:rgba(93,184,122,.45); }
-    .card-img-wrap { position:relative; cursor:pointer; }
-    .card-img { width:100%; display:block; border-radius:10px 10px 0 0; }
-    .card-img-placeholder { width:100%; aspect-ratio:5/7; background:var(--bg3); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-style:italic; font-size:.82rem; border-radius:10px 10px 0 0; padding:.5rem; text-align:center; }
-    .card-footer { padding:.55rem .65rem; }
-    .card-name { font-family:'Cinzel',serif; font-size:.72rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:.35rem; }
-    .card-meta-row { display:flex; justify-content:space-between; align-items:center; }
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+        gap: 1.2rem;
+    }
 
-    .rarity-pip { display:inline-flex; align-items:center; gap:.3rem; font-size:.72rem; color:var(--text-dim); }
-    .rarity-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-    .rarity-common   { background:#8a8a8a; }
-    .rarity-uncommon { background:#7ec8e3; }
-    .rarity-rare     { background:#c9a84c; }
-    .rarity-mythic   { background:#e87c3e; }
-    .rarity-special  { background:#c04ec4; }
+    .card-item {
+        position: relative;
+        border-radius: 10px;
+        overflow: visible;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
 
-    .qty-control { display:flex; justify-content:center; }
-    .qty-control form { display:flex; align-items:center; gap:.35rem; }
-    .qty-btn { background:var(--bg3); border:1px solid var(--border2); color:var(--text); border-radius:4px; width:22px; height:22px; cursor:pointer; font-size:.95rem; line-height:1; display:flex; align-items:center; justify-content:center; transition:background .15s,border-color .15s; }
-    .qty-btn:hover { background:var(--accent-glow); border-color:var(--accent); color:var(--accent); }
-    .qty-value { font-family:'Cinzel',serif; font-size:.82rem; min-width:18px; text-align:center; }
-    .owned .qty-value { color:var(--green); }
+    .card-item:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent);
+        box-shadow: 0 8px 32px rgba(201, 168, 76, .2);
+    }
 
-    .lang-badge { position:absolute; top:5px; right:5px; font-family:'Cinzel',serif; font-size:.6rem; background:rgba(201,168,76,.85); color:#0a0c10; border-radius:4px; padding:.05rem .3rem; pointer-events:none; }
+    .card-item.is-owned {
+        border-color: rgba(93, 184, 122, .45);
+    }
+
+    .card-img-wrap {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .card-img {
+        width: 100%;
+        display: block;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .card-img-placeholder {
+        width: 100%;
+        aspect-ratio: 5/7;
+        background: var(--bg3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-dim);
+        font-style: italic;
+        font-size: .82rem;
+        border-radius: 10px 10px 0 0;
+        padding: .5rem;
+        text-align: center;
+    }
+
+    .card-footer {
+        padding: .55rem .65rem;
+    }
+
+    .card-name {
+        font-family: 'Cinzel', serif;
+        font-size: .72rem;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: .35rem;
+    }
+
+    .card-meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .rarity-pip {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        font-size: .72rem;
+        color: var(--text-dim);
+    }
+
+    .rarity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .rarity-common {
+        background: #8a8a8a;
+    }
+
+    .rarity-uncommon {
+        background: #7ec8e3;
+    }
+
+    .rarity-rare {
+        background: #c9a84c;
+    }
+
+    .rarity-mythic {
+        background: #e87c3e;
+    }
+
+    .rarity-special {
+        background: #c04ec4;
+    }
+
+    .qty-control {
+        display: flex;
+        justify-content: center;
+    }
+
+    .qty-control form {
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+    }
+
+    .qty-btn {
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        color: var(--text);
+        border-radius: 4px;
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        font-size: .95rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background .15s, border-color .15s;
+    }
+
+    .qty-btn:hover {
+        background: var(--accent-glow);
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .qty-value {
+        font-family: 'Cinzel', serif;
+        font-size: .82rem;
+        min-width: 18px;
+        text-align: center;
+    }
+
+    .owned .qty-value {
+        color: var(--green);
+    }
+
+    .lang-badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-family: 'Cinzel', serif;
+        font-size: .6rem;
+        background: rgba(201, 168, 76, .85);
+        color: #0a0c10;
+        border-radius: 4px;
+        padding: .05rem .3rem;
+        pointer-events: none;
+    }
 
     /* POPUP */
-    #card-popup { display:none; position:fixed; inset:0; z-index:999; background:rgba(0,0,0,.75); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
-    #card-popup.open { display:flex; }
-    #card-popup-inner { position:relative; max-width:340px; width:90%; animation:popIn .2s ease; }
-    @keyframes popIn { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
-    #card-popup img { width:100%; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.8); display:block; }
-    #card-popup-close { position:absolute; top:-12px; right:-12px; width:30px; height:30px; border-radius:50%; background:var(--accent); border:none; color:var(--bg); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    #card-popup-close:hover { background:var(--accent2); }
-    #card-popup-info { margin-top:.8rem; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:.8rem 1rem; font-size:.88rem; }
-    #card-popup-info .popup-name { font-family:'Cinzel',serif; font-size:1rem; color:var(--accent); margin-bottom:.3rem; }
-    #card-popup-info .popup-meta { color:var(--text-dim); font-size:.8rem; margin-bottom:.4rem; }
-    #card-popup-info .popup-text { color:var(--text); font-style:italic; line-height:1.5; }
+    #card-popup {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        background: rgba(0, 0, 0, .75);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+    }
 
-    .empty-state { text-align:center; padding:4rem 2rem; color:var(--text-dim); font-style:italic; }
+    #card-popup.open {
+        display: flex;
+    }
+
+    #card-popup-inner {
+        position: relative;
+        max-width: 340px;
+        width: 90%;
+        animation: popIn .2s ease;
+    }
+
+    @keyframes popIn {
+        from {
+            transform: scale(.85);
+            opacity: 0
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1
+        }
+    }
+
+    #card-popup img {
+        width: 100%;
+        border-radius: 14px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, .8);
+        display: block;
+    }
+
+    #card-popup-close {
+        position: absolute;
+        top: -12px;
+        right: -12px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: none;
+        color: var(--bg);
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #card-popup-close:hover {
+        background: var(--accent2);
+    }
+
+    #card-popup-info {
+        margin-top: .8rem;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: .8rem 1rem;
+        font-size: .88rem;
+    }
+
+    #card-popup-info .popup-name {
+        font-family: 'Cinzel', serif;
+        font-size: 1rem;
+        color: var(--accent);
+        margin-bottom: .3rem;
+    }
+
+    #card-popup-info .popup-meta {
+        color: var(--text-dim);
+        font-size: .8rem;
+        margin-bottom: .4rem;
+    }
+
+    #card-popup-info .popup-text {
+        color: var(--text);
+        font-style: italic;
+        line-height: 1.5;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-dim);
+        font-style: italic;
+    }
 </style>
 {% endblock %}
 
@@ -62,19 +330,15 @@
 <h1>Collezione</h1>
 <p class="subtitle">Visualizza e filtra le tue carte</p>
 
-<form id="filter-form"
-      class="filters"
-      hx-get="/cards/grid"
-      hx-target="#card-grid-container"
-      hx-trigger="change, input delay:400ms"
-      hx-include="this">
+<form id="filter-form" class="filters" hx-get="/cards/grid" hx-target="#card-grid-container"
+    hx-trigger="change, input delay:400ms" hx-include="this">
 
     <div class="filter-group">
         <label>Espansione</label>
         <select name="set_code" class="filter-select">
             <option value="">Tutte</option>
             {% for code, sname in set_codes %}
-            <option value="{{ code }}" {% if filters.set_code == code %}selected{% endif %}>{{ sname }}</option>
+            <option value="{{ code }}" {% if filters.set_code==code %}selected{% endif %}>{{ sname }}</option>
             {% endfor %}
         </select>
     </div>
@@ -95,10 +359,10 @@
         <label>Rarità</label>
         <select name="rarity" class="filter-select">
             <option value="">Tutte</option>
-            <option value="common"   {% if filters.rarity=="common" %}selected{% endif %}>Common</option>
+            <option value="common" {% if filters.rarity=="common" %}selected{% endif %}>Common</option>
             <option value="uncommon" {% if filters.rarity=="uncommon" %}selected{% endif %}>Uncommon</option>
-            <option value="rare"     {% if filters.rarity=="rare" %}selected{% endif %}>Rare</option>
-            <option value="mythic"   {% if filters.rarity=="mythic" %}selected{% endif %}>Mythic</option>
+            <option value="rare" {% if filters.rarity=="rare" %}selected{% endif %}>Rare</option>
+            <option value="mythic" {% if filters.rarity=="mythic" %}selected{% endif %}>Mythic</option>
         </select>
     </div>
 
@@ -107,7 +371,7 @@
         <select name="owned" class="filter-select">
             <option value="">Tutte</option>
             <option value="yes" {% if filters.owned=="yes" %}selected{% endif %}>✓ Possedute</option>
-            <option value="no"  {% if filters.owned=="no" %}selected{% endif %}>✗ Non possedute</option>
+            <option value="no" {% if filters.owned=="no" %}selected{% endif %}>✗ Non possedute</option>
         </select>
     </div>
 
@@ -115,9 +379,9 @@
         <label>Ordina per</label>
         <select name="sort" class="filter-select">
             <option value="collector" {% if filters.sort=="collector" %}selected{% endif %}>N° Collezionatore</option>
-            <option value="name"      {% if filters.sort=="name" %}selected{% endif %}>Nome</option>
-            <option value="cmc"       {% if filters.sort=="cmc" %}selected{% endif %}>Costo Mana</option>
-            <option value="rarity"    {% if filters.sort=="rarity" %}selected{% endif %}>Rarità</option>
+            <option value="name" {% if filters.sort=="name" %}selected{% endif %}>Nome</option>
+            <option value="cmc" {% if filters.sort=="cmc" %}selected{% endif %}>Costo Mana</option>
+            <option value="rarity" {% if filters.sort=="rarity" %}selected{% endif %}>Rarità</option>
         </select>
     </div>
 
@@ -128,7 +392,7 @@
 </form>
 
 <div id="card-grid-container">
-    {% include "card_grid.html" %}
+    {% with lang=site_lang %}{% include "card_grid.html" %}{% endwith %}
 </div>
 
 <!-- POPUP -->
@@ -145,21 +409,21 @@
 </div>
 
 <script>
-function openPopup(imgSrc, name, meta, text) {
-    document.getElementById('card-popup-img').src = imgSrc;
-    document.getElementById('popup-name').textContent = name;
-    document.getElementById('popup-meta').textContent = meta;
-    document.getElementById('popup-text').textContent = text;
-    document.getElementById('card-popup').classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-function closePopup(e) {
-    if (e.target === document.getElementById('card-popup')) closePopupDirect();
-}
-function closePopupDirect() {
-    document.getElementById('card-popup').classList.remove('open');
-    document.body.style.overflow = '';
-}
-document.addEventListener('keydown', e => { if(e.key==='Escape') closePopupDirect(); });
+    function openPopup(imgSrc, name, meta, text) {
+        document.getElementById('card-popup-img').src = imgSrc;
+        document.getElementById('popup-name').textContent = name;
+        document.getElementById('popup-meta').textContent = meta;
+        document.getElementById('popup-text').textContent = text;
+        document.getElementById('card-popup').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closePopup(e) {
+        if (e.target === document.getElementById('card-popup')) closePopupDirect();
+    }
+    function closePopupDirect() {
+        document.getElementById('card-popup').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopupDirect(); });
 </script>
 {% endblock %}

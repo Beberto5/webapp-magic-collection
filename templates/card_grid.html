@@ -1,53 +1,54 @@
-{% set lang = lang if lang is defined else "en" %}
+{% set lang = lang if (lang is defined and lang) else (site_lang if site_lang is defined else "en") %}
 {% set total = total_cards if total_cards is defined else 0 %}
 {% set owned_c = owned_cards if owned_cards is defined else 0 %}
 
 {% if cards %}
 <div class="results-bar">
     <span class="results-count">{{ cards|length }} carte trovate
-        {% if total %}&nbsp;·&nbsp; <strong style="color:var(--green)">{{ owned_c }}</strong> / {{ total }} in collezione{% endif %}
+        {% if total %}&nbsp;·&nbsp; <strong style="color:var(--green)">{{ owned_c }}</strong> / {{ total }} in
+        collezione{% endif %}
     </span>
 </div>
 <div class="card-grid">
-{% for card in cards %}
-{% set qty = owned_map.get(card.scryfall_id, 0) %}
-{% set use_it = (lang == "it" and card.image_uri_small_it) %}
-{% set img_small = card.image_uri_small_it if use_it else card.image_uri_small %}
-{% set img_full  = card.image_uri_it if use_it else card.image_uri %}
-{% set display_name = card.name_it if (lang=="it" and card.name_it) else card.name %}
-{% set meta_str = card.set_name ~ " · " ~ card.rarity|capitalize ~ " · CMC " ~ (card.cmc|int if card.cmc else "—") %}
+    {% for card in cards %}
+    {% set qty = owned_map.get(card.scryfall_id, 0) %}
+    {% set use_it = (lang == "it" and card.image_uri_small_it) %}
+    {% set img_small = card.image_uri_small_it if use_it else card.image_uri_small %}
+    {% set img_full = card.image_uri_it if use_it else card.image_uri %}
+    {% set display_name = card.name_it if (lang=="it" and card.name_it) else card.name %}
+    {% set meta_str = card.set_name ~ " · " ~ card.rarity|capitalize ~ " · CMC " ~ (card.cmc|int if card.cmc else "—")
+    %}
 
-<div class="card-item {% if qty > 0 %}is-owned{% endif %}">
-    <div class="card-img-wrap"
-         onclick="openPopup('{{ img_full or img_small or "" }}','{{ display_name|replace("'","\\'") }}','{{ meta_str|replace("'","\\'") }}','{{ (card.oracle_text or "")|replace("'","\\'")|replace("\n"," / ")|truncate(200) }}')">
-        {% if img_small %}
+    <div class="card-item {% if qty > 0 %}is-owned{% endif %}">
+        <div class="card-img-wrap"
+            onclick="openPopup('{{ img_full or img_small or "" }}','{{ display_name|replace("'","\\'") }}','{{ meta_str|replace("'","\\'") }}','{{ (card.oracle_text or "")|replace("'","\\'")|replace("
+            \n"," / ")|truncate(200) }}')">
+            {% if img_small %}
             <img class="card-img" src="{{ img_small }}" alt="{{ display_name }}" loading="lazy">
             {% if use_it %}<span class="lang-badge">IT</span>{% endif %}
-        {% else %}
+            {% else %}
             <div class="card-img-placeholder">{{ display_name }}</div>
-        {% endif %}
-    </div>
-    <div class="card-footer">
-        <div class="card-name" title="{{ display_name }}">{{ display_name }}</div>
-        <div class="card-meta-row">
-            <span class="rarity-pip">
-                <span class="rarity-dot rarity-{{ card.rarity }}"></span>
-                <span>{{ card.rarity[:1]|upper }}</span>
-            </span>
-            <div class="qty-control {% if qty > 0 %}owned{% endif %}" id="qty-{{ card.scryfall_id }}">
-                <form hx-post="/collection/update"
-                      hx-target="#qty-{{ card.scryfall_id }}"
-                      hx-swap="outerHTML">
-                    <input type="hidden" name="scryfall_id" value="{{ card.scryfall_id }}">
-                    <button type="submit" name="quantity" value="{{ [0, qty-1]|max }}" class="qty-btn">−</button>
-                    <span class="qty-value">{{ qty }}</span>
-                    <button type="submit" name="quantity" value="{{ qty+1 }}" class="qty-btn">+</button>
-                </form>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <div class="card-name" title="{{ display_name }}">{{ display_name }}</div>
+            <div class="card-meta-row">
+                <span class="rarity-pip">
+                    <span class="rarity-dot rarity-{{ card.rarity }}"></span>
+                    <span>{{ card.rarity[:1]|upper }}</span>
+                </span>
+                <div class="qty-control {% if qty > 0 %}owned{% endif %}" id="qty-{{ card.scryfall_id }}">
+                    <form hx-post="/collection/update" hx-target="#qty-{{ card.scryfall_id }}" hx-swap="outerHTML">
+                        <input type="hidden" name="scryfall_id" value="{{ card.scryfall_id }}">
+                        <button type="submit" name="quantity" value="{{ [0, qty-1]|max }}" class="qty-btn">−</button>
+                        <span class="qty-value">{{ qty }}</span>
+                        <button type="submit" name="quantity" value="{{ qty+1 }}" class="qty-btn">+</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% endfor %}
+    {% endfor %}
 </div>
 {% else %}
 <div class="empty-state">

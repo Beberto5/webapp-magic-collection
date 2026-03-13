@@ -10,8 +10,10 @@ async def get_sets() -> list[dict]:
         response.raise_for_status()
         data = response.json()
         sets = [
-            s for s in data["data"]
-            if s["set_type"] in ("expansion", "core", "draft_innovation", "masters", "commander")
+            s
+            for s in data["data"]
+            if s["set_type"]
+            in ("expansion", "core", "draft_innovation", "masters", "commander")
         ]
         return sorted(sets, key=lambda x: x["released_at"], reverse=True)
 
@@ -75,21 +77,21 @@ def parse_card(en_card: dict, it_card: Optional[dict] = None) -> Optional[dict]:
     color_identity = en_card.get("color_identity", [])
 
     return {
-        "scryfall_id":      en_card["id"],
-        "name":             en_card.get("name", ""),
-        "name_it":          it_card.get("printed_name") if it_card else None,
-        "set_code":         en_card.get("set", ""),
-        "set_name":         en_card.get("set_name", ""),
+        "scryfall_id": en_card["id"],
+        "name": en_card.get("name", ""),
+        "name_it": it_card.get("printed_name") if it_card else None,
+        "set_code": en_card.get("set", ""),
+        "set_name": en_card.get("set_name", ""),
         "collector_number": en_card.get("collector_number", ""),
-        "rarity":           en_card.get("rarity", ""),
-        "type_line":        en_card.get("type_line", ""),
-        "mana_cost":        en_card.get("mana_cost", ""),
-        "cmc":              en_card.get("cmc", 0),
-        "colors":           ",".join(colors) if colors else "",
-        "color_identity":   ",".join(color_identity) if color_identity else "",
-        "image_uri":        en_images.get("normal", ""),
-        "image_uri_small":  en_images.get("small", ""),
-        "image_uri_it":     it_images.get("normal", "") or None,
+        "rarity": en_card.get("rarity", ""),
+        "type_line": en_card.get("type_line", ""),
+        "mana_cost": en_card.get("mana_cost", ""),
+        "cmc": en_card.get("cmc", 0),
+        "colors": ",".join(colors) if colors else "",
+        "color_identity": ",".join(color_identity) if color_identity else "",
+        "image_uri": en_images.get("normal", ""),
+        "image_uri_small": en_images.get("small", ""),
+        "image_uri_it": it_images.get("normal", "") or None,
         "image_uri_small_it": it_images.get("small", "") or None,
-        "oracle_text":      en_card.get("oracle_text", ""),
+        "oracle_text": en_card.get("oracle_text", ""),
     }

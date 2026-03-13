@@ -23,6 +23,7 @@ def on_startup():
 
 # ── HELPERS ───────────────────────────────────────────────────────────────────
 
+
 def get_lang(site_lang: Optional[str] = Cookie(default="en")) -> str:
     return "it" if site_lang == "it" else "en"
 
@@ -37,8 +38,8 @@ def _apply_filters(query, set_code, color, rarity, name, sort, lang):
     if name:
         if lang == "it":
             query = query.where(
-                ((Card.name_it != None) & Card.name_it.contains(name)) |
-                Card.name.contains(name)
+                ((Card.name_it != None) & Card.name_it.contains(name))
+                | Card.name.contains(name)
             )
         else:
             query = query.where(Card.name.contains(name))
@@ -63,13 +64,14 @@ def _stats(session: Session, set_code: Optional[str] = None):
     q_owned = select(func.count(CollectionEntry.id))
     if set_code:
         q_total = q_total.where(Card.set_code == set_code)
-        q_owned = (q_owned
-                   .join(Card, Card.scryfall_id == CollectionEntry.card_scryfall_id)
-                   .where(Card.set_code == set_code))
+        q_owned = q_owned.join(
+            Card, Card.scryfall_id == CollectionEntry.card_scryfall_id
+        ).where(Card.set_code == set_code)
     return session.exec(q_total).one(), session.exec(q_owned).one()
 
 
 # ── SET LINGUA (cookie server-side, poi redirect) ─────────────────────────────
+
 
 @app.get("/set-lang/{lang}")
 def set_lang(lang: str, request: Request):
@@ -83,6 +85,7 @@ def set_lang(lang: str, request: Request):
 
 # ── PAGINE PRINCIPALI ─────────────────────────────────────────────────────────
 
+
 @app.get("/", response_class=HTMLResponse)
 async def index(
     request: Request,
@@ -92,14 +95,17 @@ async def index(
     sets = await get_sets()
     imported = session.exec(select(Card.set_code).distinct()).all()
     total, owned = _stats(session)
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "sets": sets,
-        "imported_sets": set(imported),
-        "total_cards": total,
-        "owned_cards": owned,
-        "site_lang": lang,
-    })
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "sets": sets,
+            "imported_sets": set(imported),
+            "total_cards": total,
+            "owned_cards": owned,
+            "site_lang": lang,
+        },
+    )
 
 
 @app.get("/collection", response_class=HTMLResponse)
@@ -126,19 +132,26 @@ async def collection(
     set_codes = session.exec(select(Card.set_code, Card.set_name).distinct()).all()
     total, owned_count = _stats(session, set_code)
 
-    return templates.TemplateResponse("collection.html", {
-        "request": request,
-        "cards": cards,
-        "owned_map": owned_map,
-        "set_codes": set_codes,
-        "total_cards": total,
-        "owned_cards": owned_count,
-        "site_lang": lang,
-        "filters": {
-            "set_code": set_code, "color": color, "rarity": rarity,
-            "owned": owned, "name": name, "sort": sort,
+    return templates.TemplateResponse(
+        "collection.html",
+        {
+            "request": request,
+            "cards": cards,
+            "owned_map": owned_map,
+            "set_codes": set_codes,
+            "total_cards": total,
+            "owned_cards": owned_count,
+            "site_lang": lang,
+            "filters": {
+                "set_code": set_code,
+                "color": color,
+                "rarity": rarity,
+                "owned": owned,
+                "name": name,
+                "sort": sort,
+            },
         },
-    })
+    )
 
 
 @app.get("/stats", response_class=HTMLResponse)
@@ -158,13 +171,14 @@ async def stats(
             sets_data[key] = {
                 "set_name": card.set_name,
                 "set_code": card.set_code,
-                "total": 0, "owned": 0,
+                "total": 0,
+                "owned": 0,
                 "by_rarity": {
-                    "mythic":   {"total": 0, "owned": 0},
-                    "rare":     {"total": 0, "owned": 0},
+                    "mythic": {"total": 0, "owned": 0},
+                    "rare": {"total": 0, "owned": 0},
                     "uncommon": {"total": 0, "owned": 0},
-                    "common":   {"total": 0, "owned": 0},
-                }
+                    "common": {"total": 0, "owned": 0},
+                },
             }
         sets_data[key]["total"] += 1
         if card.scryfall_id in owned_map:
@@ -178,22 +192,26 @@ async def stats(
     sets_list = sorted(
         sets_data.values(),
         key=lambda x: x["owned"] / x["total"] if x["total"] else 0,
-        reverse=True
+        reverse=True,
     )
 
     total_cards = sum(s["total"] for s in sets_list)
     total_owned = sum(s["owned"] for s in sets_list)
 
-    return templates.TemplateResponse("stats.html", {
-        "request": request,
-        "sets_list": sets_list,
-        "total_cards": total_cards,
-        "owned_cards": total_owned,
-        "site_lang": lang,
-    })
+    return templates.TemplateResponse(
+        "stats.html",
+        {
+            "request": request,
+            "sets_list": sets_list,
+            "total_cards": total_cards,
+            "owned_cards": total_owned,
+            "site_lang": lang,
+        },
+    )
 
 
 # ── HTMX: griglia carte ───────────────────────────────────────────────────────
+
 
 @app.get("/cards/grid", response_class=HTMLResponse)
 async def card_grid(
@@ -218,18 +236,22 @@ async def card_grid(
 
     total, owned_count = _stats(session, set_code)
 
-    return templates.TemplateResponse("card_grid.html", {
-        "request": request,
-        "cards": cards,
-        "owned_map": owned_map,
-        "lang": lang,
-        "site_lang": lang,
-        "total_cards": total,
-        "owned_cards": owned_count,
-    })
+    return templates.TemplateResponse(
+        "card_grid.html",
+        {
+            "request": request,
+            "cards": cards,
+            "owned_map": owned_map,
+            "lang": lang,
+            "site_lang": lang,
+            "total_cards": total,
+            "owned_cards": owned_count,
+        },
+    )
 
 
 # ── IMPORT ────────────────────────────────────────────────────────────────────
+
 
 @app.post("/import/{set_code}", response_class=HTMLResponse)
 async def import_set(
@@ -255,7 +277,8 @@ async def import_set(
             imported += 1
     session.commit()
     it_count = sum(
-        1 for c in session.exec(select(Card).where(Card.set_code == set_code)).all()
+        1
+        for c in session.exec(select(Card).where(Card.set_code == set_code)).all()
         if c.image_uri_it
     )
     return HTMLResponse(
@@ -266,6 +289,7 @@ async def import_set(
 
 # ── ESPORTAZIONE CSV ──────────────────────────────────────────────────────────
 
+
 @app.get("/export/csv")
 def export_csv(session: Session = Depends(get_session)):
     cards = session.exec(select(Card)).all()
@@ -273,29 +297,51 @@ def export_csv(session: Session = Depends(get_session)):
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow([
-        "name", "name_it", "set_code", "set_name", "collector_number",
-        "rarity", "type_line", "mana_cost", "cmc",
-        "colors", "color_identity", "quantity"
-    ])
+    writer.writerow(
+        [
+            "name",
+            "name_it",
+            "set_code",
+            "set_name",
+            "collector_number",
+            "rarity",
+            "type_line",
+            "mana_cost",
+            "cmc",
+            "colors",
+            "color_identity",
+            "quantity",
+        ]
+    )
     for card in sorted(cards, key=lambda c: (c.set_code, c.collector_number)):
         qty = owned_map.get(card.scryfall_id, 0)
-        writer.writerow([
-            card.name, card.name_it or "", card.set_code, card.set_name,
-            card.collector_number, card.rarity, card.type_line,
-            card.mana_cost or "", card.cmc or 0,
-            card.colors or "", card.color_identity or "", qty
-        ])
+        writer.writerow(
+            [
+                card.name,
+                card.name_it or "",
+                card.set_code,
+                card.set_name,
+                card.collector_number,
+                card.rarity,
+                card.type_line,
+                card.mana_cost or "",
+                card.cmc or 0,
+                card.colors or "",
+                card.color_identity or "",
+                qty,
+            ]
+        )
 
     content = output.getvalue()
     return HTMLResponse(
         content=content,
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=magic_collection.csv"}
+        headers={"Content-Disposition": "attachment; filename=magic_collection.csv"},
     )
 
 
 # ── COLLEZIONE UPDATE ─────────────────────────────────────────────────────────
+
 
 @app.post("/collection/update", response_class=HTMLResponse)
 async def update_collection(

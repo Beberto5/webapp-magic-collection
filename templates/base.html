@@ -1,70 +1,249 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Magic Collection{% endblock %}</title>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --bg:#0a0c10; --bg2:#111418; --bg3:#1a1e26;
-            --border:#2a2f3d; --border2:#3a3f50;
-            --text:#c8cdd8; --text-dim:#6b7280;
-            --accent:#c9a84c; --accent2:#e8c96a; --accent-glow:rgba(201,168,76,0.15);
-            --green:#5db87a; --green-dim:rgba(93,184,122,0.15);
-            --radius:8px;
+            --bg: #0a0c10;
+            --bg2: #111418;
+            --bg3: #1a1e26;
+            --border: #2a2f3d;
+            --border2: #3a3f50;
+            --text: #c8cdd8;
+            --text-dim: #6b7280;
+            --accent: #c9a84c;
+            --accent2: #e8c96a;
+            --accent-glow: rgba(201, 168, 76, 0.15);
+            --green: #5db87a;
+            --green-dim: rgba(93, 184, 122, 0.15);
+            --radius: 8px;
         }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        body { background:var(--bg); color:var(--text); font-family:'Crimson Text',Georgia,serif; font-size:17px; line-height:1.6; min-height:100vh; }
 
-        nav { background:var(--bg2); border-bottom:1px solid var(--border); padding:0 2rem; display:flex; align-items:center; gap:1.5rem; height:60px; position:sticky; top:0; z-index:100; }
-        .nav-logo { font-family:'Cinzel',serif; font-weight:700; font-size:1.15rem; color:var(--accent); letter-spacing:.05em; text-decoration:none; margin-right:.5rem; }
-        nav a { color:var(--text-dim); text-decoration:none; font-family:'Cinzel',serif; font-size:.82rem; letter-spacing:.08em; padding:.3rem 0; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; }
-        nav a:hover, nav a.active { color:var(--accent); border-bottom-color:var(--accent); }
-        .nav-spacer { flex:1; }
-        .nav-badge { font-family:'Cinzel',serif; font-size:.78rem; color:var(--text-dim); background:var(--bg3); border:1px solid var(--border); border-radius:20px; padding:.2rem .9rem; white-space:nowrap; }
-        .nav-badge strong { color:var(--accent); }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        .nav-lang { display:flex; align-items:center; gap:.3rem; border-left:1px solid var(--border); padding-left:1.2rem; margin-left:.2rem; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Crimson Text', Georgia, serif;
+            font-size: 17px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--accent);
+            letter-spacing: .05em;
+            text-decoration: none;
+            margin-right: .5rem;
+        }
+
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-size: .82rem;
+            letter-spacing: .08em;
+            padding: .3rem 0;
+            border-bottom: 2px solid transparent;
+            transition: color .2s, border-color .2s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .nav-spacer {
+            flex: 1;
+        }
+
+        .nav-badge {
+            font-family: 'Cinzel', serif;
+            font-size: .78rem;
+            color: var(--text-dim);
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: .2rem .9rem;
+            white-space: nowrap;
+        }
+
+        .nav-badge strong {
+            color: var(--accent);
+        }
+
+        .nav-lang {
+            display: flex;
+            align-items: center;
+            gap: .3rem;
+            border-left: 1px solid var(--border);
+            padding-left: 1.2rem;
+            margin-left: .2rem;
+        }
+
         .nav-lang a {
-            font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.05em;
-            padding:.22rem .65rem; border-radius:6px;
-            border:1px solid transparent; background:transparent;
-            color:var(--text-dim); transition:all .2s;
-            border-bottom:none !important;
-            text-decoration:none;
+            font-family: 'Cinzel', serif;
+            font-size: .72rem;
+            letter-spacing: .05em;
+            padding: .22rem .65rem;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-dim);
+            transition: all .2s;
+            border-bottom: none !important;
+            text-decoration: none;
         }
-        .nav-lang a.active { background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:700; }
-        .nav-lang a:not(.active):hover { border-color:var(--border2); color:var(--text); }
 
-        main { max-width:1440px; margin:0 auto; padding:2rem; }
-        h1 { font-family:'Cinzel',serif; font-weight:700; font-size:2rem; color:var(--accent); letter-spacing:.05em; margin-bottom:.3rem; }
-        h2 { font-family:'Cinzel',serif; font-size:1.15rem; color:var(--text); font-weight:600; margin-bottom:1rem; }
-        .subtitle { color:var(--text-dim); font-style:italic; margin-bottom:2rem; }
+        .nav-lang a.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+            font-weight: 700;
+        }
 
-        .btn { font-family:'Cinzel',serif; font-size:.78rem; letter-spacing:.08em; padding:.45rem 1.1rem; border-radius:var(--radius); border:1px solid var(--border2); background:var(--bg3); color:var(--text); cursor:pointer; transition:all .2s; text-decoration:none; display:inline-block; }
-        .btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-glow); }
-        .btn-primary { background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:600; }
-        .btn-primary:hover { background:var(--accent2); border-color:var(--accent2); color:var(--bg); }
-        .badge-ok { display:inline-block; background:var(--green-dim); color:var(--green); border:1px solid var(--green); border-radius:var(--radius); padding:.3rem .8rem; font-size:.82rem; font-family:'Cinzel',serif; }
+        .nav-lang a:not(.active):hover {
+            border-color: var(--border2);
+            color: var(--text);
+        }
 
-        ::-webkit-scrollbar { width:6px; }
-        ::-webkit-scrollbar-track { background:var(--bg); }
-        ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
-        ::-webkit-scrollbar-thumb:hover { background:var(--accent); }
+        main {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
 
-        .htmx-request.btn-primary { opacity:.6; pointer-events:none; }
-        .htmx-request.btn-primary::after { content:" …"; }
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--accent);
+            letter-spacing: .05em;
+            margin-bottom: .3rem;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.15rem;
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-style: italic;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            font-family: 'Cinzel', serif;
+            font-size: .78rem;
+            letter-spacing: .08em;
+            padding: .45rem 1.1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border2);
+            background: var(--bg3);
+            color: var(--text);
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            color: var(--bg);
+        }
+
+        .badge-ok {
+            display: inline-block;
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid var(--green);
+            border-radius: var(--radius);
+            padding: .3rem .8rem;
+            font-size: .82rem;
+            font-family: 'Cinzel', serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .htmx-request.btn-primary {
+            opacity: .6;
+            pointer-events: none;
+        }
+
+        .htmx-request.btn-primary::after {
+            content: " …";
+        }
     </style>
     {% block extra_style %}{% endblock %}
 </head>
+
 <body>
     <nav>
         <a href="/" class="nav-logo">⬡ Magic Collection</a>
-        <a href="/" {% if request.url.path == "/" %}class="active"{% endif %}>Espansioni</a>
-        <a href="/collection" {% if request.url.path == "/collection" %}class="active"{% endif %}>Collezione</a>
-        <a href="/stats" {% if request.url.path == "/stats" %}class="active"{% endif %}>Statistiche</a>
+        <a href="/" {% if request.url.path=="/" %}class="active" {% endif %}>Espansioni</a>
+        <a href="/collection" {% if request.url.path=="/collection" %}class="active" {% endif %}>Collezione</a>
+        <a href="/stats" {% if request.url.path=="/stats" %}class="active" {% endif %}>Statistiche</a>
         <div class="nav-spacer"></div>
         {% if total_cards is defined and total_cards %}
         <span class="nav-badge"><strong>{{ owned_cards }}</strong> / {{ total_cards }} carte</span>
@@ -76,4 +255,5 @@
     </nav>
     <main>{% block content %}{% endblock %}</main>
 </body>
+
 </html>
