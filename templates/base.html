@@ -9,6 +9,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
         rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet">
     <style>
         :root {
             --bg: #0a0c10;
@@ -244,6 +245,7 @@
         <a href="/" {% if request.url.path=="/" %}class="active" {% endif %}>Espansioni</a>
         <a href="/collection" {% if request.url.path=="/collection" %}class="active" {% endif %}>Collezione</a>
         <a href="/stats" {% if request.url.path=="/stats" %}class="active" {% endif %}>Statistiche</a>
+        <a href="/deck-builder" {% if request.url.path=="/deck-builder" %}class="active" {% endif %}>Deck Builder</a>
         <div class="nav-spacer"></div>
         {% if total_cards is defined and total_cards %}
         <span class="nav-badge"><strong>{{ owned_cards }}</strong> / {{ total_cards }} carte</span>

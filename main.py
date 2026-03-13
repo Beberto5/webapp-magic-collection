@@ -6,6 +6,7 @@ from sqlmodel import Session, select, func
 from typing import Optional
 import csv
 import io
+import json
 
 from database import create_db, get_session
 from models import Card, CollectionEntry
@@ -350,3 +351,48 @@ def _qty_html(scryfall_id: str, qty: int) -> str:
         </form>
     </div>
     """
+
+# ── DECK BUILDER ─────────────────────────────────────────────────────────────
+# Aggiungi questo import in cima a main.py (già presenti gli altri):
+# import json
+
+@app.get("/deck-builder", response_class=HTMLResponse)
+async def deck_builder(
+    request: Request,
+    session: Session = Depends(get_session),
+    lang: str = Depends(get_lang),
+):
+    import json
+    cards = session.exec(select(Card)).all()
+    owned_map = _owned_map(session)
+    total, owned_count = _stats(session)
+
+    # Serializza le carte come JSON per il frontend
+    cards_data = []
+    for card in cards:
+        cards_data.append({
+            "scryfall_id": card.scryfall_id,
+            "name": card.name,
+            "name_it": card.name_it,
+            "set_code": card.set_code,
+            "set_name": card.set_name,
+            "rarity": card.rarity,
+            "type_line": card.type_line or "",
+            "mana_cost": card.mana_cost or "",
+            "cmc": card.cmc or 0,
+            "colors": card.colors or "",
+            "color_identity": card.color_identity or "",
+            "image_uri": card.image_uri or "",
+            "image_uri_small": card.image_uri_small or "",
+            "image_uri_it": card.image_uri_it or "",
+            "image_uri_small_it": card.image_uri_small_it or "",
+        })
+
+    return templates.TemplateResponse("deck_builder.html", {
+        "request": request,
+        "cards_json": json.dumps(cards_data),
+        "owned_json": json.dumps(owned_map),
+        "total_cards": total,
+        "owned_cards": owned_count,
+        "site_lang": lang,
+    })

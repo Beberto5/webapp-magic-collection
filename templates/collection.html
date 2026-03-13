@@ -392,4 +392,150 @@
     }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopupDirect(); });
 </script>
+<!-- 
+=============================================================
+PATCH base.html — aggiungi la riga con mana-font CDN
+nel <head>, subito dopo il link Google Fonts esistente.
+
+PRIMA:
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+DOPO (aggiungi questa riga sotto):
+    <link href="https://cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet">
+=============================================================
+-->
+
+<!-- Riga esatta da aggiungere: -->
+<link href="https://cdn.jsdelivr.net/npm/mana-font@latest/css/mana.min.css" rel="stylesheet">
+
+
+<!-- 
+=============================================================
+PATCH collection.html — aggiungi filtro colori con mana symbols
+nel blocco extra_style, e sostituisci il filtro colore nel form.
+
+Nel <form id="filter-form" ...>, sostituisci il <div class="filter-group"> 
+del colore (quello con la <select name="color">):
+=============================================================
+
+VECCHIO:
+    <div class="filter-group">
+        <label>Colore</label>
+        <select name="color" class="filter-select">
+            <option value="">Tutti</option>
+            <option value="W" ...>⬜ Bianco</option>
+            ...
+        </select>
+    </div>
+
+NUOVO — aggiunge i pip visivi mantenendo la select nascosta per compatibilità HTMX:
+-->
+
+<!-- Aggiungi nel extra_style di collection.html: -->
+<style>
+.mana-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+
+.mana-filter-group label {
+    font-family: 'Cinzel', serif;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+}
+
+.mana-pip-row {
+    display: flex;
+    gap: .35rem;
+    align-items: center;
+}
+
+.mana-pip-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg3);
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.mana-pip-btn:hover {
+    transform: scale(1.18);
+    box-shadow: 0 2px 10px rgba(0,0,0,.5);
+}
+
+.mana-pip-btn.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(201,168,76,.5);
+}
+
+.mana-pip-btn .ms {
+    font-size: 1.35rem;
+    line-height: 1;
+    pointer-events: none;
+}
+</style>
+
+<!-- Nel form sostituisci il filter-group colore con questo: -->
+<div class="mana-filter-group">
+    <label>Colore</label>
+    <!-- select nascosta usata da HTMX -->
+    <select name="color" id="color-hidden-select" class="filter-select" style="display:none">
+        <option value="">Tutti</option>
+        <option value="W">Bianco</option>
+        <option value="U">Blu</option>
+        <option value="B">Nero</option>
+        <option value="R">Rosso</option>
+        <option value="G">Verde</option>
+    </select>
+    <div class="mana-pip-row">
+        <button type="button" class="mana-pip-btn" data-color=""  onclick="setColorFilter(this,'')"  title="Tutti">
+            <i class="ms ms-x ms-cost" style="font-size:.9rem;color:var(--text-dim)"></i>
+        </button>
+        <button type="button" class="mana-pip-btn" data-color="W" onclick="setColorFilter(this,'W')" title="Bianco">
+            <i class="ms ms-w ms-cost"></i>
+        </button>
+        <button type="button" class="mana-pip-btn" data-color="U" onclick="setColorFilter(this,'U')" title="Blu">
+            <i class="ms ms-u ms-cost"></i>
+        </button>
+        <button type="button" class="mana-pip-btn" data-color="B" onclick="setColorFilter(this,'B')" title="Nero">
+            <i class="ms ms-b ms-cost"></i>
+        </button>
+        <button type="button" class="mana-pip-btn" data-color="R" onclick="setColorFilter(this,'R')" title="Rosso">
+            <i class="ms ms-r ms-cost"></i>
+        </button>
+        <button type="button" class="mana-pip-btn" data-color="G" onclick="setColorFilter(this,'G')" title="Verde">
+            <i class="ms ms-g ms-cost"></i>
+        </button>
+    </div>
+</div>
+
+
+<script>
+function setColorFilter(el, color) {
+    document.querySelectorAll('.mana-pip-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    const sel = document.getElementById('color-hidden-select');
+    sel.value = color;
+    // Triggera HTMX manualmente
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+}
+// Ripristina stato active al caricamento in base al valore corrente del filtro
+document.addEventListener('DOMContentLoaded', () => {
+    const current = document.getElementById('color-hidden-select')?.value || '';
+    const btn = document.querySelector(`.mana-pip-btn[data-color="${current}"]`);
+    if (btn) btn.classList.add('active');
+});
+</script>
 {% endblock %}
