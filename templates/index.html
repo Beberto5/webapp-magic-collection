@@ -3,170 +3,54 @@
 
 {% block extra_style %}
 <style>
-    .page-header {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .search-box {
-        background: var(--bg2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: .5rem 1rem;
-        color: var(--text);
-        font-family: 'Crimson Text', serif;
-        font-size: 1rem;
-        width: 280px;
-        outline: none;
-        transition: border-color .2s;
-    }
-
-    .search-box:focus {
-        border-color: var(--accent);
-    }
+    .page-header { display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; }
+    .search-form { display:flex; gap:.5rem; }
+    .search-box { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:.5rem 1rem; color:var(--text); font-family:'Crimson Text',serif; font-size:1rem; width:280px; outline:none; transition:border-color .2s; }
+    .search-box:focus { border-color:var(--accent); }
+    .search-clear { background:transparent; border:1px solid var(--border2); border-radius:var(--radius); color:var(--text-dim); padding:.5rem .8rem; cursor:pointer; font-size:.85rem; transition:all .2s; }
+    .search-clear:hover { border-color:var(--accent); color:var(--accent); }
 
     /* GRIGLIA */
-    .sets-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 1rem;
-    }
+    .sets-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1rem; }
 
     /* CARD */
-    .set-card {
-        background: var(--bg2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1.1rem 1.2rem;
-        display: grid;
-        grid-template-columns: 48px 1fr auto;
-        align-items: center;
-        gap: .9rem;
-        transition: border-color .2s, background .2s, box-shadow .2s;
-        min-width: 0;
-    }
+    .set-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.2rem; display:grid; grid-template-columns:48px 1fr auto; align-items:center; gap:.9rem; transition:border-color .2s, background .2s, box-shadow .2s; min-width:0; }
+    .set-card:hover { border-color:var(--border2); background:var(--bg3); box-shadow:0 4px 16px rgba(0,0,0,.3); }
+    .set-card.is-imported { border-color:rgba(93,184,122,.3); }
 
-    .set-card:hover {
-        border-color: var(--border2);
-        background: var(--bg3);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
-    }
-
-    .set-card.is-imported {
-        border-color: rgba(93, 184, 122, .3);
-    }
-
-    /* ICONA SET */
-    .set-icon {
-        width: 48px;
-        height: 48px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--bg3);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 8px;
-    }
-
-    .set-icon img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        /* SVG bianchi di Scryfall — li coloriamo con CSS filter */
-        filter: invert(80%) sepia(20%) saturate(400%) hue-rotate(5deg) brightness(1.1);
-        opacity: .85;
-    }
-
-    .set-card.is-imported .set-icon img {
-        filter: invert(70%) sepia(40%) saturate(500%) hue-rotate(70deg) brightness(1.1);
-        opacity: 1;
-    }
-
-    .set-icon-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Cinzel', serif;
-        font-size: .75rem;
-        color: var(--accent);
-        font-weight: 700;
-    }
+    /* ICONA */
+    .set-icon { width:48px; height:48px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:8px; }
+    .set-icon img { width:100%; height:100%; object-fit:contain; filter:invert(80%) sepia(20%) saturate(400%) hue-rotate(5deg) brightness(1.1); opacity:.85; }
+    .set-card.is-imported .set-icon img { filter:invert(70%) sepia(40%) saturate(500%) hue-rotate(70deg) brightness(1.1); opacity:1; }
+    .set-icon-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:.75rem; color:var(--accent); font-weight:700; }
 
     /* INFO */
-    .set-info {
-        min-width: 0;
-    }
-
-    .set-name {
-        font-family: 'Cinzel', serif;
-        font-size: .88rem;
-        color: var(--text);
-        line-height: 1.3;
-        /* wrap invece di troncare */
-        white-space: normal;
-        word-break: break-word;
-        margin-bottom: .35rem;
-    }
-
-    .set-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: .3rem .5rem;
-        align-items: center;
-    }
-
-    .set-code-badge {
-        font-family: monospace;
-        background: var(--bg3);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: .05rem .4rem;
-        font-size: .72rem;
-        color: var(--accent);
-    }
-
-    .set-year {
-        font-size: .78rem;
-        color: var(--text-dim);
-    }
-
-    .set-count {
-        font-size: .78rem;
-        color: var(--text-dim);
-    }
+    .set-info { min-width:0; }
+    .set-name { font-family:'Cinzel',serif; font-size:.88rem; color:var(--text); line-height:1.3; white-space:normal; word-break:break-word; margin-bottom:.35rem; }
+    .set-meta { display:flex; flex-wrap:wrap; gap:.3rem .5rem; align-items:center; }
+    .set-code-badge { font-family:monospace; background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:.05rem .4rem; font-size:.72rem; color:var(--accent); }
+    .set-year { font-size:.78rem; color:var(--text-dim); }
+    .set-count { font-size:.78rem; color:var(--text-dim); }
 
     /* AZIONE */
-    .set-action {
-        flex-shrink: 0;
-        text-align: right;
-        min-width: 90px;
-    }
+    .set-action { flex-shrink:0; text-align:right; min-width:90px; }
+    .imported-label { font-family:'Cinzel',serif; font-size:.72rem; color:var(--green); letter-spacing:.04em; white-space:nowrap; }
 
-    .imported-label {
-        font-family: 'Cinzel', serif;
-        font-size: .72rem;
-        color: var(--green);
-        letter-spacing: .04em;
-        white-space: nowrap;
-    }
+    /* PAGINAZIONE */
+    .pagination { display:flex; align-items:center; justify-content:center; gap:.4rem; margin-top:2rem; flex-wrap:wrap; }
+    .pag-info { font-family:'Cinzel',serif; font-size:.78rem; color:var(--text-dim); margin:0 .8rem; }
+    .pag-btn { font-family:'Cinzel',serif; font-size:.78rem; letter-spacing:.05em; padding:.38rem .75rem; border-radius:var(--radius); border:1px solid var(--border2); background:var(--bg3); color:var(--text-dim); cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; transition:all .2s; }
+    .pag-btn:hover:not(.disabled):not(.active) { border-color:var(--accent); color:var(--accent); background:var(--accent-glow); }
+    .pag-btn.active { background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:700; cursor:default; }
+    .pag-btn.disabled { opacity:.35; cursor:default; pointer-events:none; }
+    .pag-ellipsis { color:var(--text-dim); padding:0 .3rem; font-size:.9rem; }
 
-    /* STATO IMPORT (indicatore loading) */
-    .htmx-request .btn-primary {
-        opacity: .55;
-        pointer-events: none;
-    }
+    /* RISULTATI INFO */
+    .results-info { font-size:.85rem; color:var(--text-dim); font-style:italic; margin-bottom:1rem; }
+    .results-info strong { color:var(--text); font-style:normal; }
 
-    .htmx-request .btn-primary::after {
-        content: " …";
-    }
+    .htmx-request .btn-primary { opacity:.55; pointer-events:none; }
+    .htmx-request .btn-primary::after { content:" …"; }
 </style>
 {% endblock %}
 
@@ -176,23 +60,41 @@
         <h1>Espansioni</h1>
         <p class="subtitle">Importa le carte direttamente da Scryfall</p>
     </div>
-    <input class="search-box" type="search" placeholder="Cerca espansione…" oninput="filterSets(this.value)" autofocus>
+    <form class="search-form" method="get" action="/">
+        <input class="search-box" type="search" name="q"
+               placeholder="Cerca espansione…"
+               value="{{ q }}" autofocus>
+        {% if q %}
+        <a href="/" class="search-clear">✕</a>
+        {% endif %}
+    </form>
 </div>
 
+<!-- INFO RISULTATI -->
+<p class="results-info">
+    {% if q %}
+        <strong>{{ total_sets }}</strong> risultati per "<strong>{{ q }}</strong>"
+        {% if total_sets == 0 %} — prova un termine diverso{% endif %}
+    {% else %}
+        <strong>{{ total_sets }}</strong> espansioni disponibili
+        &nbsp;·&nbsp; pagina <strong>{{ page }}</strong> di <strong>{{ total_pages }}</strong>
+    {% endif %}
+</p>
+
+<!-- GRIGLIA -->
 <div class="sets-grid" id="sets-grid">
     {% for s in sets %}
-    <div class="set-card {% if s.code in imported_sets %}is-imported{% endif %}" data-name="{{ s.name | lower }}">
+    <div class="set-card {% if s.code in imported_sets %}is-imported{% endif %}"
+         data-name="{{ s.name | lower }}">
 
-        <!-- ICONA -->
         <div class="set-icon">
             {% if s.icon_svg_uri %}
-            <img src="{{ s.icon_svg_uri }}" alt="{{ s.name }}" loading="lazy">
+                <img src="{{ s.icon_svg_uri }}" alt="{{ s.name }}" loading="lazy">
             {% else %}
-            <div class="set-icon-placeholder">{{ (s.code or '')[:2] | upper }}</div>
+                <div class="set-icon-placeholder">{{ (s.code or '')[:2] | upper }}</div>
             {% endif %}
         </div>
 
-        <!-- INFO -->
         <div class="set-info">
             <div class="set-name">{{ s.name }}</div>
             <div class="set-meta">
@@ -202,28 +104,69 @@
             </div>
         </div>
 
-        <!-- AZIONE -->
         <div class="set-action" id="status-{{ s.code }}">
             {% if s.code in imported_sets %}
-            <span class="imported-label">✓ Importata</span>
+                <span class="imported-label">✓ Importata</span>
             {% else %}
-            <button class="btn btn-primary" hx-post="/import/{{ s.code }}" hx-target="#status-{{ s.code }}"
-                hx-swap="innerHTML">
-                Importa
-            </button>
+                <button class="btn btn-primary"
+                    hx-post="/import/{{ s.code }}"
+                    hx-target="#status-{{ s.code }}"
+                    hx-swap="innerHTML">
+                    Importa
+                </button>
             {% endif %}
         </div>
-
     </div>
     {% endfor %}
+
+    {% if sets | length == 0 %}
+    <p style="color:var(--text-dim); font-style:italic; padding:2rem 0; grid-column:1/-1;">
+        Nessuna espansione trovata.
+    </p>
+    {% endif %}
 </div>
 
-<script>
-    function filterSets(query) {
-        const q = query.toLowerCase();
-        document.querySelectorAll('.set-card').forEach(el => {
-            el.style.display = el.dataset.name.includes(q) ? '' : 'none';
-        });
-    }
-</script>
+<!-- PAGINAZIONE -->
+{% if total_pages > 1 %}
+{% macro pag_url(p) %}/?page={{ p }}{% if q %}&q={{ q }}{% endif %}{% endmacro %}
+
+<nav class="pagination">
+
+    {# PREV #}
+    {% if page > 1 %}
+        <a class="pag-btn" href="{{ pag_url(page - 1) }}">‹ Prec</a>
+    {% else %}
+        <span class="pag-btn disabled">‹ Prec</span>
+    {% endif %}
+
+    {# NUMERI — mostra sempre prima, ultima e le 2 vicine alla pagina corrente #}
+    {% set show_pages = [] %}
+    {% for p in range(1, total_pages + 1) %}
+        {% if p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+            {% if show_pages.append(p) %}{% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% set prev_p = namespace(val=0) %}
+    {% for p in show_pages %}
+        {% if prev_p.val and p - prev_p.val > 1 %}
+            <span class="pag-ellipsis">…</span>
+        {% endif %}
+        {% if p == page %}
+            <span class="pag-btn active">{{ p }}</span>
+        {% else %}
+            <a class="pag-btn" href="{{ pag_url(p) }}">{{ p }}</a>
+        {% endif %}
+        {% set prev_p.val = p %}
+    {% endfor %}
+
+    {# NEXT #}
+    {% if page < total_pages %}
+        <a class="pag-btn" href="{{ pag_url(page + 1) }}">Succ ›</a>
+    {% else %}
+        <span class="pag-btn disabled">Succ ›</span>
+    {% endif %}
+
+</nav>
+{% endif %}
 {% endblock %}
