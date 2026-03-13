@@ -25,7 +25,6 @@
             \n"," / ")|truncate(200) }}')">
             {% if img_small %}
             <img class="card-img" src="{{ img_small }}" alt="{{ display_name }}" loading="lazy">
-            {% if use_it %}<span class="lang-badge">IT</span>{% endif %}
             {% else %}
             <div class="card-img-placeholder">{{ display_name }}</div>
             {% endif %}
